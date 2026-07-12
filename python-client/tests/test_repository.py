@@ -1,5 +1,8 @@
 from decimal import Decimal
 
+import pytest
+
+from sap_finance_extension.exceptions import RepositoryError
 from sap_finance_extension.local_repository import LocalInvoiceRepository
 from sap_finance_extension.models import Invoice, InvoiceStatus
 
@@ -73,3 +76,17 @@ def test_persistence_survives_reinitialization(tmp_path) -> None:
     repository.add(make_invoice("inv-1"))
     reloaded = LocalInvoiceRepository(tmp_path / "invoices.json")
     assert reloaded.get("inv-1") is not None
+
+
+def test_posted_invoice_cannot_be_updated(tmp_path) -> None:
+    repository = LocalInvoiceRepository(tmp_path / "invoices.json")
+    invoice = make_invoice("inv-1")
+    repository.add(invoice)
+
+    invoice.processing_status = InvoiceStatus.POSTED
+    repository.update(invoice)
+
+    invoice.description = "Changed after posting"
+
+    with pytest.raises(RepositoryError):
+        repository.update(invoice)

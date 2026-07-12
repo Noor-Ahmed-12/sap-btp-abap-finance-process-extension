@@ -9,7 +9,7 @@ from typing import Any
 from .csv_loader import CSVLoader
 from .exceptions import InvoiceValidationError, InvalidStatusTransitionError, RepositoryError
 from .lifecycle import InvoiceLifecycleService
-from .local_repository import LocalInvoiceRepository
+from .local_repository import LocalInvoiceRepository, get_default_repository_path
 from .models import Invoice, InvoiceStatus
 from .reporting import build_summary
 from .validators import ensure_valid_invoice
@@ -29,7 +29,6 @@ def build_parser() -> argparse.ArgumentParser:
     import_parser.add_argument("file_path")
 
     subparsers.add_parser("list", help="List all invoices")
-    subparsers.add_parser("show", help="Show one invoice")
     show_parser = subparsers.add_parser("show", help="Show one invoice")
     show_parser.add_argument("invoice_uuid")
 
@@ -56,7 +55,8 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    repository = LocalInvoiceRepository("local-data/invoices.json")
+    storage_path = Path(__import__("os").environ.get("SAP_FINANCE_REPOSITORY", str(get_default_repository_path())))
+    repository = LocalInvoiceRepository(storage_path)
     lifecycle = InvoiceLifecycleService()
 
     try:

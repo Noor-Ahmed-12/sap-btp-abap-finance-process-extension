@@ -70,3 +70,9 @@ def test_duplicate_vendor_invoice_number_fails():
     duplicate = make_invoice(invoice_uuid="inv-2")
     errors = validate_invoice(invoice, [duplicate])
     assert any(error.code == "DUPLICATE_INVOICE" for error in errors)
+
+
+def test_self_duplicate_is_ignored():
+    invoice = make_invoice()
+    errors = validate_invoice(invoice, [invoice])
+    assert errors == []

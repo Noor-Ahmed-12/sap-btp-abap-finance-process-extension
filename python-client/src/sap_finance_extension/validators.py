@@ -26,6 +26,14 @@ def validate_required_fields(invoice: Invoice) -> list[ValidationError]:
             )
     if not invoice.invoice_date:
         errors.append(ValidationError("invoice_date", "REQUIRED_FIELD", "Invoice date is required."))
+    if invoice.processing_status == InvoiceStatus.REJECTED and not invoice.rejection_reason:
+        errors.append(
+            ValidationError(
+                "rejection_reason",
+                "REQUIRED_FIELD",
+                "Rejection reason is required for rejected invoices.",
+            )
+        )
     return errors
 
 
@@ -80,7 +88,11 @@ def validate_amount_reconciliation(invoice: Invoice) -> list[ValidationError]:
 def validate_duplicate_invoice(invoice: Invoice, existing_invoices: Iterable[Invoice]) -> list[ValidationError]:
     """Ensure vendor and invoice number are unique."""
     for existing in existing_invoices:
-        if existing.vendor_id == invoice.vendor_id and existing.invoice_number == invoice.invoice_number:
+        if (
+            existing.invoice_uuid != invoice.invoice_uuid
+            and existing.vendor_id == invoice.vendor_id
+            and existing.invoice_number == invoice.invoice_number
+        ):
             return [
                 ValidationError(
                     "vendor_id",

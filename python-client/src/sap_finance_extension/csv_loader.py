@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import csv
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from .exceptions import ValidationError
+from .exceptions import InvoiceValidationError
 from .models import Invoice, InvoiceStatus
+from .validators import validate_invoice
 
 
 class CSVImportResult:
@@ -61,11 +62,26 @@ class CSVLoader:
         for index, row in enumerate(rows, start=2):
             try:
                 invoice = self._row_to_invoice(row)
-            except ValueError as exc:
-                failed.append({"row": index, "error": str(exc)})
+                errors = validate_invoice(invoice, [])
+                if errors:
+                    raise InvoiceValidationError(errors)
+            except (ValueError, InvoiceValidationError) as exc:
+                error_text = str(exc)
+                failed.append({"row": index, "error": error_text})
                 continue
             successful.append(invoice)
         return CSVImportResult(successful=successful, failed=failed)
+
+    def _parse_datetime(self, value: str | None) -> datetime:
+        if not value:
+            return datetime(2026, 1, 1, tzinfo=timezone.utc)
+        clean_value = (value or "").strip()
+        if not clean_value:
+            return datetime(2026, 1, 1, tzinfo=timezone.utc)
+        try:
+            return datetime.fromisoformat(clean_value.replace("Z", "+00:00"))
+        except ValueError:
+            return datetime(2026, 1, 1, tzinfo=timezone.utc)
 
     def _row_to_invoice(self, row: dict[str, str]) -> Invoice:
         status_value = (row.get("processing_status") or "NEW").strip().upper()
@@ -90,7 +106,7 @@ class CSVLoader:
             rejection_reason=(row.get("rejection_reason") or "").strip() or None,
             error_message=(row.get("error_message") or "").strip() or None,
             created_by=row.get("created_by", "system").strip() or "system",
-            created_at=datetime.fromisoformat(row.get("created_at", "2026-01-01T00:00:00").replace("Z", "+00:00")),
+            created_at=self._parse_datetime(row.get("created_at")),
             last_changed_by=row.get("last_changed_by", "system").strip() or "system",
-            last_changed_at=datetime.fromisoformat(row.get("last_changed_at", "2026-01-01T00:00:00").replace("Z", "+00:00")),
+            last_changed_at=self._parse_datetime(row.get("last_changed_at")),
         )

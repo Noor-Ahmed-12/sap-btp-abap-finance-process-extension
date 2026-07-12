@@ -7,12 +7,24 @@ from typing import Any
 from .exceptions import RepositoryError
 from .models import Invoice, InvoiceStatus
 
+DEFAULT_REPOSITORY_PATH = Path("local-data/invoices.json")
+
+
+def get_default_repository_path() -> Path:
+    return DEFAULT_REPOSITORY_PATH
+
+
+def set_default_repository_path(path: str | Path) -> None:
+    global DEFAULT_REPOSITORY_PATH
+    DEFAULT_REPOSITORY_PATH = Path(path)
+
 
 class LocalInvoiceRepository:
     """JSON-backed repository for local invoice persistence."""
 
     def __init__(self, storage_path: str | Path | None = None) -> None:
-        self.storage_path = Path(storage_path or "local-data/invoices.json")
+        self.storage_path = Path(storage_path or DEFAULT_REPOSITORY_PATH)
+        set_default_repository_path(self.storage_path)
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
         self.storage_path.touch(exist_ok=True)
         if self.storage_path.stat().st_size == 0:
@@ -65,6 +77,11 @@ class LocalInvoiceRepository:
         return [self._decode(record) for record in self._load()]
 
     def update(self, invoice: Invoice) -> Invoice:
+        existing = self.get(invoice.invoice_uuid)
+        if existing is None:
+            raise RepositoryError("Invoice not found.")
+        if existing.processing_status == InvoiceStatus.POSTED:
+            raise RepositoryError("Posted invoices cannot be modified.")
         records = self._load()
         for index, record in enumerate(records):
             if record["invoice_uuid"] == invoice.invoice_uuid:

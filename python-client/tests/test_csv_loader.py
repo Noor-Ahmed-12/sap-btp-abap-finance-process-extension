@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from sap_finance_extension.csv_loader import CSVLoader
+from sap_finance_extension.models import InvoiceStatus
 
 
 def test_valid_file_imports() -> None:
@@ -13,8 +14,8 @@ def test_valid_file_imports() -> None:
 def test_invalid_rows_are_reported() -> None:
     loader = CSVLoader(Path("sample-data/invalid_invoices.csv"))
     result = loader.load()
-    assert len(result.successful) == 8
-    assert len(result.failed) == 0
+    assert len(result.successful) == 0
+    assert len(result.failed) == 8
 
 
 def test_missing_headers_are_reported() -> None:
@@ -40,6 +41,13 @@ def test_date_parsing_works() -> None:
     loader = CSVLoader(Path("sample-data/valid_invoices.csv"))
     invoice = loader.load().successful[0]
     assert invoice.invoice_date.year == 2026
+
+
+def test_business_validation_is_applied_during_csv_import() -> None:
+    loader = CSVLoader(Path("sample-data/invalid_invoices.csv"))
+    result = loader.load()
+    assert any("vendor_id" in item["error"].lower() for item in result.failed)
+    assert any("gross" in item["error"].lower() or "currency" in item["error"].lower() for item in result.failed)
 
 
 def test_invalid_status_is_reported() -> None:

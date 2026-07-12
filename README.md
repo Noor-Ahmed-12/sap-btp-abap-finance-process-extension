@@ -1,201 +1,308 @@
 # SAP BTP ABAP Finance Process Extension
 
-A portfolio project demonstrating a finance invoice workflow using SAP BTP ABAP Environment, ABAP Cloud, Core Data Services, the RESTful Application Programming Model, OData, Fiori Elements, and an external Python integration client.
+An educational portfolio project for modelling and implementing a finance invoice workflow across a local Python application and a planned SAP BTP ABAP Environment deployment.
+
+The project demonstrates invoice validation, approval lifecycle management, local persistence, finance reporting, SAP ABAP Cloud concepts, Core Data Services, RAP, OData V4, Clean Core principles, and external system integration.
 
 > **Project status:** In progress
 > **Started:** July 2026
-> **Environment:** SAP BTP ABAP Environment trial
+> **Local implementation:** Built, with testing and hardening in progress
+> **SAP implementation:** Draft source created, deployment and activation pending
+> **Target SAP environment:** SAP BTP ABAP Environment trial
 > **Purpose:** Independent learning and portfolio development
 
 ## Project Overview
 
-Finance teams often receive invoice data from multiple systems, files, and manual processes. Inconsistent fields, duplicate invoices, invalid amounts, and missing approval information can create delays and reporting errors.
+Finance teams often receive invoice data from multiple sources, including CSV files, internal systems, APIs, spreadsheets, and manual processes.
 
-This project develops a structured invoice-processing application that validates finance records, manages approval statuses, exposes data through an OData service, and supports downstream reporting.
+These records may contain missing fields, duplicate invoices, invalid amounts, unsupported currencies, inconsistent tax calculations, or incorrect workflow statuses. Such issues can delay approvals and create unreliable reporting.
 
-The project is designed to demonstrate SAP and non-SAP integration across an end-to-end business process.
+This project models an invoice-processing workflow that:
+
+1. Receives invoice records from CSV files or an external client.
+2. Validates finance and workflow rules.
+3. Detects duplicate and inconsistent records.
+4. Moves valid invoices through a controlled lifecycle.
+5. Stores invoice records locally for development and testing.
+6. Produces finance summary reports.
+7. Prepares SAP ABAP Cloud, RAP, CDS, and OData artifacts for deployment in SAP BTP.
+8. Plans a Fiori Elements interface for finance users.
+9. Connects a Python integration client to the future SAP OData service.
+
+## Current Implementation Status
+
+| Component                  | Status                           | Notes                                                          |
+| -------------------------- | -------------------------------- | -------------------------------------------------------------- |
+| Business requirements      | Completed                        | Documented in `docs/`                                          |
+| System architecture        | Completed                        | Mermaid source included                                        |
+| Invoice data model         | Completed locally                | SAP table draft requires activation                            |
+| Invoice lifecycle          | Implemented locally              | SAP behavior implementation pending                            |
+| Python domain model        | Implemented                      | Uses typed models and financial values                         |
+| Validation rules           | Implemented locally              | Additional import validation hardening pending                 |
+| Duplicate detection        | Implemented                      | Self-duplicate handling requires review                        |
+| JSON persistence           | Implemented                      | Local development repository                                   |
+| CSV import                 | Implemented                      | Row parsing works; business-rule integration is being improved |
+| Finance reporting          | Implemented                      | Totals remain separated by currency                            |
+| Command-line interface     | Implemented as a draft           | Parser and workflow verification pending                       |
+| SAP OData client           | Implemented as a client skeleton | Requires a published SAP service                               |
+| Python tests               | Added                            | Additional CLI and OData tests pending                         |
+| ABAP database table        | Draft created                    | Not yet compiled or activated                                  |
+| CDS views                  | Drafts created                   | Annotations and activation pending                             |
+| RAP behavior               | Draft created                    | Validation and action logic pending                            |
+| ABAP Unit tests            | Draft created                    | Assertions and SAP execution pending                           |
+| OData V4 service           | Service definition drafted       | Service binding not yet created                                |
+| Fiori Elements application | Planned                          | Requires SAP BTP deployment                                    |
+| SAP screenshots            | Pending                          | Only genuine deployment screenshots will be added              |
+| GitHub Actions             | Pending                          | CI workflow not yet configured                                 |
 
 ## Business Problem
 
 The application addresses the following problems:
 
-* Invoice records arrive from different upstream sources.
-* Required fields may be missing or invalid.
+* Invoice records arrive from different upstream systems.
+* Required fields may be missing.
 * The same vendor invoice may be submitted more than once.
-* Net amount, tax, and gross amount may not reconcile.
-* Approval and posting statuses need to follow defined rules.
-* Finance users need a clear interface for reviewing records.
-* Downstream reporting needs consistent, validated data.
-* External systems need a reliable API for reading and creating records.
+* Gross, tax, and net amounts may not reconcile.
+* Unsupported currencies may be submitted.
+* Workflow statuses may be changed incorrectly.
+* Rejected invoices may not include a reason.
+* Posted invoices should not be edited.
+* Reporting requires consistent and validated records.
+* External applications need a structured integration interface.
 
-## Solution
+## Solution Architecture
 
-The planned solution includes:
-
-1. An external invoice source or Python client sends invoice records.
-2. SAP validates the incoming data.
-3. Duplicate and inconsistent records are rejected.
-4. Valid invoices move through a controlled approval lifecycle.
-5. Finance users manage invoices through a Fiori Elements application.
-6. Data is exposed through an OData V4 service.
-7. A Python client retrieves approved invoice data for reporting.
-
-## Architecture
+The project currently contains a working local Python foundation and draft SAP artifacts.
 
 ```mermaid
 flowchart LR
-    A[CSV or External Source] --> B[Python Integration Client]
-    B -->|OData / REST| C[SAP BTP ABAP Environment]
+    subgraph Local["Implemented locally"]
+        A[CSV Sample Data]
+        B[Python CSV Loader]
+        C[Validation Service]
+        D[Invoice Lifecycle]
+        E[JSON Repository]
+        F[Finance Reporting]
+        G[Command-Line Interface]
 
-    C --> D[Database Table]
-    D --> E[CDS Data Model]
-    E --> F[RAP Business Object]
+        A --> B
+        B --> C
+        C --> D
+        D --> E
+        E --> F
+        G --> B
+        G --> D
+        G --> F
+    end
 
-    F --> G[Validations]
-    F --> H[Determinations]
-    F --> I[Business Actions]
+    subgraph Drafts["SAP source drafts"]
+        H[ABAP Table Draft]
+        I[CDS View Drafts]
+        J[RAP Behavior Draft]
+        K[ABAP Classes]
+        L[Service Definition]
+    end
 
-    F --> J[OData V4 Service]
-    J --> K[Fiori Elements Application]
-    J --> L[Python Reporting Client]
+    subgraph Target["Target SAP BTP deployment"]
+        M[SAP BTP ABAP Environment]
+        N[OData V4 Service Binding]
+        O[Fiori Elements Application]
+    end
 
-    L --> M[Finance Summary]
+    E -. Future OData integration .-> M
+    H --> M
+    I --> M
+    J --> M
+    K --> M
+    L --> M
+    M --> N
+    N --> O
 ```
 
 ## Invoice Lifecycle
 
+The workflow uses five statuses:
+
+* `NEW`
+* `VALIDATED`
+* `APPROVED`
+* `REJECTED`
+* `POSTED`
+
 ```mermaid
 stateDiagram-v2
-    [*] --> New
-    New --> Validated: Validation succeeds
-    New --> Rejected: Validation fails
-    Validated --> Approved: Approve action
-    Validated --> Rejected: Reject action
-    Approved --> Posted: Mark as posted
-    Rejected --> New: Correct and resubmit
-    Posted --> [*]
+    [*] --> NEW
+
+    NEW --> VALIDATED: Validation succeeds
+    NEW --> REJECTED: Reject with reason
+
+    VALIDATED --> APPROVED: Approve
+    VALIDATED --> REJECTED: Reject with reason
+
+    REJECTED --> NEW: Correct and reopen
+    APPROVED --> POSTED: Mark as posted
+
+    POSTED --> [*]
 ```
 
-## Planned Features
+Blocked examples include:
 
-### Data management
+* `NEW` to `APPROVED`
+* `NEW` to `POSTED`
+* `REJECTED` to `POSTED`
+* `POSTED` to `NEW`
+* `POSTED` to `APPROVED`
 
-* Create invoice records
-* Update invoice records
-* View invoice details
-* Search and filter invoices
-* Track creation and modification metadata
-* Store validation and processing messages
+## Implemented Local Features
 
-### Validation
+### Invoice model
 
-* Required-field validation
-* Positive-amount validation
-* Supported-currency validation
-* Duplicate vendor and invoice-number detection
-* Net, tax, and gross amount reconciliation
-* Status-transition validation
-* Rejection-reason validation
+The Python application includes an invoice model containing:
 
-### Business actions
+| Field               | Description                      |
+| ------------------- | -------------------------------- |
+| `invoice_uuid`      | Unique technical identifier      |
+| `company_code`      | Finance company code             |
+| `vendor_id`         | Vendor identifier                |
+| `vendor_name`       | Vendor display name              |
+| `invoice_number`    | Vendor invoice reference         |
+| `invoice_date`      | Invoice date                     |
+| `currency_code`     | Supported ISO currency           |
+| `gross_amount`      | Total invoice amount             |
+| `tax_amount`        | Tax component                    |
+| `net_amount`        | Amount before tax                |
+| `cost_center`       | Responsible cost center          |
+| `description`       | Invoice description              |
+| `processing_status` | Current workflow status          |
+| `rejection_reason`  | Reason for rejection             |
+| `error_message`     | Validation or processing message |
+| `created_by`        | Record creator                   |
+| `created_at`        | Creation timestamp               |
+| `last_changed_by`   | Last modifying user              |
+| `last_changed_at`   | Last modification timestamp      |
 
-* Validate invoice
-* Approve invoice
-* Reject invoice
-* Mark invoice as posted
-* Reopen a rejected invoice
+Financial values are modelled with decimal-based calculations rather than binary floating-point arithmetic.
 
-### Integration
+### Validation rules
 
-* OData V4 service
-* Python API client
-* Sample invoice import
-* Finance reporting summary
-* Error handling and response logging
+The local validation layer covers:
 
-### User interface
+1. Company code is required.
+2. Vendor ID is required.
+3. Vendor name is required.
+4. Invoice number is required.
+5. Invoice date is required.
+6. Currency must be supported.
+7. Gross amount must be greater than zero.
+8. Tax amount cannot be negative.
+9. Net amount cannot be negative.
+10. Net amount plus tax amount must equal gross amount within the configured tolerance.
+11. Vendor ID and invoice number must be unique together.
+12. Rejected invoices require a rejection reason.
+13. Only valid workflow transitions are allowed.
+14. Only approved invoices can be posted.
+15. Posted invoices are intended to be immutable.
 
-* Fiori Elements list report
-* Invoice object page
-* Status filters
-* Create and edit form
-* Approval and rejection actions
-* Validation messages
-* Amount and currency display
+Supported currencies currently include:
 
-## Data Model
+```text
+EUR
+USD
+GBP
+CHF
+```
 
-The primary invoice entity contains the following fields:
+### Local persistence
 
-| Field            | Description                      |
-| ---------------- | -------------------------------- |
-| InvoiceUUID      | Unique technical identifier      |
-| CompanyCode      | Finance company code             |
-| VendorID         | Unique vendor identifier         |
-| VendorName       | Vendor display name              |
-| InvoiceNumber    | Vendor invoice reference         |
-| InvoiceDate      | Date shown on the invoice        |
-| CurrencyCode     | ISO currency code                |
-| GrossAmount      | Total invoice amount             |
-| TaxAmount        | Tax component                    |
-| NetAmount        | Amount before tax                |
-| CostCenter       | Responsible cost center          |
-| Description      | Invoice description              |
-| ProcessingStatus | Current workflow status          |
-| RejectionReason  | Reason for rejection             |
-| ErrorMessage     | Validation or processing message |
-| CreatedBy        | User who created the record      |
-| CreatedAt        | Record creation timestamp        |
-| LastChangedBy    | User who last changed the record |
-| LastChangedAt    | Last modification timestamp      |
+The project contains a JSON-backed repository for local development.
 
-## Business Rules
+It supports:
 
-1. Vendor ID is required.
-2. Invoice number is required.
-3. Company code is required.
-4. Invoice date is required.
-5. Currency code must be supported.
-6. Gross amount must be greater than zero.
-7. Tax amount cannot be negative.
-8. Net amount plus tax amount must equal gross amount.
-9. Vendor ID and invoice number must be unique together.
-10. Only validated invoices can be approved.
-11. Only approved invoices can be marked as posted.
-12. Rejected invoices must contain a rejection reason.
-13. Posted invoices cannot be edited without reopening the process.
+* Adding invoices
+* Reading an invoice by UUID
+* Listing all invoices
+* Updating records
+* Deleting records
+* Looking up an invoice by vendor ID and invoice number
+* Reloading stored data between application runs
 
-## Technology Stack
+Runtime invoice data is stored locally and excluded from Git.
 
-### SAP
+### CSV import
 
-* SAP BTP ABAP Environment
-* ABAP Cloud
-* ABAP Objects
-* Open SQL
-* Core Data Services
-* RESTful Application Programming Model
-* OData V4
-* Fiori Elements
-* SAP Business Technology Platform
-* Clean Core principles
-* Released API concepts
+The repository includes fictional sample datasets for:
 
-### External tools
+* Valid invoices
+* Invalid invoices
+* Duplicate invoices
 
-* Python
-* Requests
-* Pandas
-* CSV
-* Git
-* GitHub
-* Mermaid diagrams
-* Visual Studio Code
-* Eclipse with ABAP Development Tools
+The CSV loader currently supports:
+
+* Header validation
+* Date parsing
+* Decimal parsing
+* Currency normalization
+* Status normalization
+* Row-level parsing errors
+* Separating successful and failed records
+
+Full business-rule validation during CSV import is being strengthened.
+
+### Finance reporting
+
+The reporting layer calculates:
+
+* Total invoice count
+* Invoice count by status
+* Gross amount by currency
+* Approved amount by currency
+* Posted amount by currency
+* Rejected invoice count
+* Validation-error count
+* Unique vendor count
+* Average gross amount by currency
+
+Different currencies are never combined into one total.
+
+### SAP OData client foundation
+
+The Python package contains a client prepared for future SAP integration.
+
+Planned and partially modelled operations include:
+
+* List invoices
+* Retrieve an invoice by UUID
+* Create an invoice
+* Update an invoice
+* Execute RAP actions
+* Handle HTTP errors
+* Handle invalid JSON responses
+* Use environment-based SAP configuration
+
+The final URLs, entity names, payloads, CSRF handling, and action paths will be confirmed only after the SAP OData V4 service is published.
+
+## SAP Development Artifacts
+
+The `abap/` directory contains source drafts for:
+
+* Invoice database table
+* CDS interface view
+* CDS projection view
+* RAP behavior definition
+* RAP behavior implementation class
+* Invoice validation class
+* Sample-data class
+* Service definition
+* ABAP Unit test class
+* Manual OData V4 service-binding instructions
+
+These files are portfolio development drafts.
+
+> The ABAP source must be imported, adjusted where necessary, compiled, tested, and activated in an SAP BTP ABAP Environment before it can be described as working SAP code.
 
 ## SAP Object Naming
 
-All SAP development objects use the unique `ZNA_` prefix.
+All custom SAP objects use the `ZNA_` prefix.
 
 Examples:
 
@@ -208,229 +315,398 @@ ZNA_BP_INVOICE
 ZNA_SD_INVOICE
 ZNA_UI_INVOICE_O4
 ZNA_CL_INVOICE_VALIDATOR
+ZNA_CL_INVOICE_DATA
 ```
+
+## Technology Stack
+
+### Implemented locally
+
+* Python 3.11+
+* Requests
+* python-dotenv
+* CSV
+* JSON
+* Decimal financial calculations
+* pytest
+* pytest-cov
+* Ruff
+* mypy
+* Git
+* GitHub
+* Mermaid
+
+### SAP technologies being developed
+
+* SAP BTP ABAP Environment
+* ABAP Cloud
+* ABAP Objects
+* Open SQL
+* Core Data Services
+* RESTful Application Programming Model
+* OData V4
+* Fiori Elements
+* Clean Core principles
+* Released API concepts
+* Side-by-side extensibility
 
 ## Repository Structure
 
 ```text
 .
 ├── README.md
-├── docs
-├── abap
-├── python-client
-├── sample-data
-└── diagrams
+├── LICENSE
+├── .gitignore
+├── pyproject.toml
+├── requirements.txt
+├── requirements-dev.txt
+│
+├── abap/
+│   ├── database-tables/
+│   ├── cds-views/
+│   ├── behavior/
+│   ├── classes/
+│   ├── services/
+│   └── tests/
+│
+├── diagrams/
+│   ├── system-architecture.mmd
+│   ├── invoice-lifecycle.mmd
+│   └── data-model.mmd
+│
+├── docs/
+│   ├── architecture.md
+│   ├── api-contract.md
+│   ├── business-requirements.md
+│   ├── business-rules.md
+│   ├── clean-core.md
+│   ├── data-model.md
+│   ├── sap-setup.md
+│   ├── testing.md
+│   └── screenshots/
+│
+├── python-client/
+│   ├── .env.example
+│   ├── src/
+│   │   └── sap_finance_extension/
+│   └── tests/
+│
+├── sample-data/
+│   ├── valid_invoices.csv
+│   ├── invalid_invoices.csv
+│   └── duplicate_invoices.csv
+│
+└── scripts/
 ```
 
-### `docs`
+## Local Setup
 
-Contains architecture documentation, business rules, the data model, API documentation, testing evidence, and screenshots.
+### Requirements
 
-### `abap`
+* Python 3.11 or newer
+* Git
+* PowerShell, Bash, or another terminal
 
-Contains exported or manually documented ABAP development objects, including database tables, CDS views, behavior definitions, classes, services, and tests.
+### Clone the repository
 
-### `python-client`
+```powershell
+git clone https://github.com/Noor-Ahmed-12/sap-btp-abap-finance-process-extension.git
+cd sap-btp-abap-finance-process-extension
+```
 
-Contains the external Python integration and finance-reporting client.
+### Create a virtual environment
 
-### `sample-data`
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-Contains valid and invalid test records used to verify business rules.
+### Install dependencies
 
-### `diagrams`
+```powershell
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
 
-Contains Mermaid source files for architecture, lifecycle, and data-model diagrams.
+### Run tests
 
-## Project Roadmap
+```powershell
+pytest
+```
 
-### Phase 1: Project definition
+### Run quality checks
 
-* [x] Define business problem
-* [x] Define project scope
-* [x] Design system architecture
-* [x] Define invoice lifecycle
-* [x] Define initial business rules
-* [ ] Create sample datasets
+```powershell
+ruff check .
+mypy python-client/src
+pytest --cov=python-client/src --cov-report=term-missing
+```
 
-### Phase 2: SAP environment
+### Run the CLI
 
-* [ ] Create SAP BTP trial account
-* [ ] Configure SAP BTP ABAP Environment
-* [ ] Install Eclipse and ABAP Development Tools
-* [ ] Create ABAP Cloud project
-* [ ] Create `ZNA_FINANCE` package
+The intended module command is:
 
-### Phase 3: Data model
+```powershell
+python -m sap_finance_extension.cli --help
+```
 
-* [ ] Create invoice database table
-* [ ] Create CDS interface view
-* [ ] Create CDS projection view
-* [ ] Add currency and amount semantics
-* [ ] Add administrative fields
+Depending on the local environment, set the source directory first:
 
-### Phase 4: RAP business object
+```powershell
+$env:PYTHONPATH="$PWD\python-client\src"
+```
 
-* [ ] Create managed RAP behavior
-* [ ] Add required-field validation
-* [ ] Add amount validation
-* [ ] Add duplicate-invoice validation
-* [ ] Add net-amount determination
-* [ ] Add approve action
-* [ ] Add reject action
-* [ ] Add mark-as-posted action
+Example intended commands:
 
-### Phase 5: Service and interface
+```powershell
+python -m sap_finance_extension.cli init
+python -m sap_finance_extension.cli import-csv sample-data/valid_invoices.csv
+python -m sap_finance_extension.cli list
+python -m sap_finance_extension.cli summary
+```
 
-* [ ] Create service definition
-* [ ] Create OData V4 service binding
+The CLI is currently undergoing final parser and workflow verification.
+
+## Environment Configuration
+
+Create a local `.env` file based on:
+
+```text
+python-client/.env.example
+```
+
+Expected variables:
+
+```env
+SAP_ODATA_URL=https://your-sap-service.example.com
+SAP_USERNAME=your_username
+SAP_PASSWORD=your_password
+SAP_VERIFY_SSL=true
+```
+
+Do not commit the completed `.env` file.
+
+## Testing
+
+The repository currently contains Python tests for:
+
+* Invoice validation
+* Workflow lifecycle
+* CSV loading
+* Local persistence
+* Finance reporting
+
+Additional tests planned:
+
+* CLI parser and command execution
+* Self-duplicate validation
+* Business validation during CSV import
+* UTC timestamp save-and-reload
+* Posted-invoice immutability
+* SAP OData client requests
+* HTTP timeouts and connection failures
+* Invalid SAP JSON responses
+* SAP action execution
+* Corrupted local JSON storage
+
+## Current Local Engineering Tasks
+
+Before marking the local Python workflow as fully verified, the following items remain:
+
+* [ ] Remove duplicate CLI subcommand registration
+* [ ] Exclude the current invoice from duplicate checks
+* [ ] Run business-rule validation during CSV import
+* [ ] Standardize UTC timestamp serialization
+* [ ] Enforce posted-invoice immutability
+* [ ] Add CLI tests
+* [ ] Add SAP OData client tests
+* [ ] Confirm test coverage is at least 85%
+* [ ] Confirm Ruff passes
+* [ ] Confirm mypy passes
+* [ ] Add GitHub Actions for automated quality checks
+
+## SAP Deployment Roadmap
+
+### Environment setup
+
+* [ ] Create or activate an SAP BTP trial account
+* [ ] Provision SAP BTP ABAP Environment
+* [ ] Install Eclipse
+* [ ] Install ABAP Development Tools
+* [ ] Create an ABAP Cloud project
+* [ ] Create the `ZNA_FINANCE` package
+
+### Data model
+
+* [x] Create local ABAP database-table draft
+* [x] Create local CDS interface-view draft
+* [x] Create local CDS projection-view draft
+* [ ] Import objects into ADT
+* [ ] Add final amount and currency semantics
+* [ ] Add administrative and ETag fields
+* [ ] Compile and activate objects
+
+### RAP business object
+
+* [x] Create managed RAP behavior draft
+* [x] Create behavior implementation skeleton
+* [x] Create validation-class skeleton
+* [ ] Implement required-field validation in ABAP
+* [ ] Implement amount validation in ABAP
+* [ ] Implement duplicate-invoice validation in ABAP
+* [ ] Implement workflow status checks
+* [ ] Implement approve action
+* [ ] Implement reject action
+* [ ] Implement mark-as-posted action
+* [ ] Return RAP failed and reported messages
+* [ ] Compile and activate the business object
+
+### Service and interface
+
+* [x] Create service-definition draft
+* [x] Document service-binding steps
+* [ ] Create OData V4 service binding in ADT
+* [ ] Publish the service
 * [ ] Create Fiori Elements preview
 * [ ] Add UI annotations
 * [ ] Add filters and status actions
+* [ ] Validate create and update behavior
+* [ ] Validate approve, reject, and post actions
 
-### Phase 6: External integration
+### External integration
 
-* [ ] Build Python OData client
-* [ ] Read invoice records
-* [ ] Create invoice records
-* [ ] Handle API errors
-* [ ] Generate finance summary
-* [ ] Add environment-variable configuration
+* [x] Create Python OData client skeleton
+* [x] Add environment-variable configuration
+* [ ] Connect the client to the published SAP service
+* [ ] Confirm the final entity paths
+* [ ] Implement CSRF handling where required
+* [ ] Read invoice records from SAP
+* [ ] Create invoice records in SAP
+* [ ] Update invoice records in SAP
+* [ ] Execute RAP actions from Python
+* [ ] Parse SAP validation-error payloads
 
-### Phase 7: Quality and documentation
+### SAP quality evidence
 
-* [ ] Add ABAP Unit tests
-* [ ] Add Python tests
-* [ ] Document API contract
-* [ ] Add test evidence
-* [ ] Add screenshots
-* [ ] Document Clean Core decisions
-* [ ] Complete setup guide
-* [ ] Record final project demo
-
-## Testing Strategy
-
-The project will include positive and negative test cases.
-
-| Test case                           | Expected result              |
-| ----------------------------------- | ---------------------------- |
-| Valid invoice                       | Record is created            |
-| Missing vendor ID                   | Save is blocked              |
-| Missing invoice number              | Save is blocked              |
-| Gross amount equals zero            | Save is blocked              |
-| Negative tax amount                 | Save is blocked              |
-| Duplicate vendor and invoice number | Save is blocked              |
-| Net plus tax differs from gross     | Validation error is returned |
-| Approve a new invoice               | Action is blocked            |
-| Approve a validated invoice         | Status changes to Approved   |
-| Reject without a reason             | Action is blocked            |
-| Post a rejected invoice             | Action is blocked            |
-| Post an approved invoice            | Status changes to Posted     |
+* [x] Create ABAP Unit test draft
+* [ ] Add meaningful ABAP Unit assertions
+* [ ] Run ABAP tests in SAP
+* [ ] Capture activation evidence
+* [ ] Capture OData service evidence
+* [ ] Capture Fiori Elements screenshots
+* [ ] Add validation and workflow screenshots
+* [ ] Record a short final project demonstration
 
 ## Clean Core Approach
 
-This project follows Clean Core concepts by:
+The project follows Clean Core concepts by:
 
 * Avoiding modification of SAP standard objects
-* Using custom namespaced objects
-* Separating custom business logic from the SAP core
-* Using released APIs where available
-* Exposing functionality through supported services
-* Treating external integrations as side-by-side components
-* Keeping validation and business logic modular
-* Documenting extension decisions and limitations
+* Using custom-named development objects
+* Separating custom business logic from SAP standard functionality
+* Planning to use released APIs where available
+* Exposing functionality through supported OData services
+* Keeping external integration logic outside the SAP core
+* Using modular validation and workflow services
+* Documenting extension boundaries and limitations
 
-Because the project uses a trial environment, it does not claim production deployment inside a commercial SAP S/4HANA system.
-
-## Python Integration
-
-The Python client will demonstrate how a non-SAP application can communicate with the invoice service.
-
-Planned capabilities:
-
-* Authenticate with the service
-* Retrieve invoice records
-* Filter records by processing status
-* Create new invoice records
-* Handle HTTP and validation errors
-* Calculate approved invoice totals
-* Export a finance summary
-
-Credentials and service URLs will be stored in environment variables and will not be committed to GitHub.
+Because the SAP deployment is not yet complete, the repository does not claim production deployment inside a commercial SAP S/4HANA system.
 
 ## Security
 
-The repository must not contain:
+The repository must never contain:
 
 * SAP passwords
 * Trial account credentials
-* Client secrets
-* Private service URLs
 * Authentication tokens
-* Personal finance data
-* Real supplier information
+* Private SAP service URLs
+* Client secrets
+* Private keys
+* Certificates
+* Real supplier data
+* Real invoice data
+* Personal financial information
 
-Only fictional sample invoice data will be used.
+Only fictional sample records are used.
 
 ## Screenshots
 
-Screenshots will be added as implementation progresses.
+The screenshots directory is intentionally incomplete until genuine SAP deployment evidence is available.
 
-Planned screenshots:
+Planned screenshots include:
 
 * SAP BTP trial environment
 * ABAP Cloud project
-* Database table
-* CDS data model
+* `ZNA_FINANCE` package
+* Activated database table
+* Activated CDS views
 * RAP behavior definition
 * OData V4 service binding
 * Fiori Elements list report
 * Invoice object page
-* Validation message
+* Validation error
 * Approval action
+* Rejection action
+* Posted invoice
 * Python finance summary
+
+No generated or fabricated SAP screenshots will be used.
 
 ## Current Limitations
 
-* The project uses the SAP BTP ABAP Environment trial.
-* It is not connected to a commercial SAP S/4HANA Finance tenant.
-* It does not post real accounting documents.
-* Vendor, company code, and invoice records are fictional.
-* SAP standard finance APIs may be simulated when unavailable in the trial.
-* The trial environment may expire, while source code and documentation will remain in GitHub.
+* The SAP source files are currently development drafts.
+* The ABAP files have not yet been verified in a live SAP BTP ABAP Environment.
+* The RAP behavior implementation is incomplete.
+* The OData V4 service has not yet been published.
+* The Fiori Elements application has not yet been previewed.
+* The Python OData client is not connected to a live SAP service.
+* The application does not post real accounting documents.
+* The project is not connected to a commercial SAP S/4HANA Finance tenant.
+* All vendor, invoice, and company data is fictional.
+* Some local Python issues remain under active correction.
+* SAP trial environments may expire, while the source code and documentation will remain available in GitHub.
 
 ## Future Improvements
 
-* Integrate with a released SAP finance API
-* Add role-based authorization
-* Add multi-level invoice approval
-* Add attachment handling
-* Add audit-log reporting
-* Add cost-center master-data validation
-* Add scheduled invoice import
-* Add SAP Analytics Cloud reporting
-* Add BTP workflow integration
-* Add continuous integration checks
-* Deploy an external integration service
+After the initial SAP implementation is complete, possible extensions include:
+
+* Released SAP finance API integration
+* Role-based authorization
+* Multi-level invoice approval
+* Attachment handling
+* Audit-log reporting
+* Vendor master-data validation
+* Cost-center validation
+* Scheduled invoice import
+* SAP Analytics Cloud reporting
+* SAP Build Process Automation integration
+* BTP event-driven integration
+* Deployment of an external integration service
+* Automated GitHub Actions quality checks
+* Docker packaging for the Python component
 
 ## Learning Objectives
 
 This project is intended to develop and demonstrate practical understanding of:
 
-* ABAP Cloud development
+* SAP BTP ABAP Environment
+* ABAP Cloud
 * ABAP Objects
 * Open SQL
 * Core Data Services
 * RAP business objects
-* OData services
+* OData V4
 * Fiori Elements
-* SAP Clean Core
-* SAP BTP extensibility
+* Clean Core principles
+* Side-by-side extensibility
 * Finance-process modelling
 * Python-to-SAP integration
-* End-to-end system ownership
+* End-to-end data tracing
+* Workflow validation
+* Software testing
 * Technical documentation
-* Testing and error handling
+* Production-minded error handling
 
 ## Author
 
@@ -446,4 +722,6 @@ This project is available under the MIT License.
 
 ## Disclaimer
 
-This is an independent educational portfolio project. It is not affiliated with, endorsed by, or developed on behalf of SAP, FINN, or any other company. SAP product names and trademarks belong to their respective owners.
+This is an independent educational portfolio project. It is not affiliated with, endorsed by, or developed on behalf of SAP, FINN, or any other company.
+
+SAP product names and trademarks belong to their respective owners.

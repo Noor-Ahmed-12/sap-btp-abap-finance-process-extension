@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .exceptions import InvalidStatusTransitionError
 from .models import Invoice, InvoiceStatus
@@ -13,14 +13,14 @@ class InvoiceLifecycleService:
         if invoice.processing_status != InvoiceStatus.NEW:
             raise InvalidStatusTransitionError("Only a NEW invoice can be validated.")
         invoice.processing_status = InvoiceStatus.VALIDATED
-        invoice.last_changed_at = datetime.utcnow()
+        invoice.last_changed_at = datetime.now(timezone.utc)
         return invoice
 
     def approve(self, invoice: Invoice) -> Invoice:
         if invoice.processing_status != InvoiceStatus.VALIDATED:
             raise InvalidStatusTransitionError("Only a VALIDATED invoice can be approved.")
         invoice.processing_status = InvoiceStatus.APPROVED
-        invoice.last_changed_at = datetime.utcnow()
+        invoice.last_changed_at = datetime.now(timezone.utc)
         return invoice
 
     def reject(self, invoice: Invoice, reason: str) -> Invoice:
@@ -30,7 +30,7 @@ class InvoiceLifecycleService:
             raise ValueError("A rejection reason is required.")
         invoice.processing_status = InvoiceStatus.REJECTED
         invoice.rejection_reason = reason
-        invoice.last_changed_at = datetime.utcnow()
+        invoice.last_changed_at = datetime.now(timezone.utc)
         return invoice
 
     def reopen(self, invoice: Invoice) -> Invoice:
@@ -38,12 +38,12 @@ class InvoiceLifecycleService:
             raise InvalidStatusTransitionError("Only a REJECTED invoice can be reopened.")
         invoice.processing_status = InvoiceStatus.NEW
         invoice.rejection_reason = None
-        invoice.last_changed_at = datetime.utcnow()
+        invoice.last_changed_at = datetime.now(timezone.utc)
         return invoice
 
     def post(self, invoice: Invoice) -> Invoice:
         if invoice.processing_status != InvoiceStatus.APPROVED:
             raise InvalidStatusTransitionError("Only an APPROVED invoice can be posted.")
         invoice.processing_status = InvoiceStatus.POSTED
-        invoice.last_changed_at = datetime.utcnow()
+        invoice.last_changed_at = datetime.now(timezone.utc)
         return invoice
