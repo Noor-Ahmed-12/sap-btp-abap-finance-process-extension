@@ -4,13 +4,18 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any
 
 from .csv_loader import CSVLoader
-from .exceptions import InvoiceValidationError, InvalidStatusTransitionError, RepositoryError
+from .exceptions import (
+    InvalidStatusTransitionError,
+    InvoiceValidationError,
+    RepositoryError,
+)
 from .lifecycle import InvoiceLifecycleService
-from .local_repository import LocalInvoiceRepository, get_default_repository_path
-from .models import Invoice, InvoiceStatus
+from .local_repository import (
+    LocalInvoiceRepository,
+    get_default_repository_path,
+)
 from .reporting import build_summary
 from .validators import ensure_valid_invoice
 
@@ -55,7 +60,12 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    storage_path = Path(__import__("os").environ.get("SAP_FINANCE_REPOSITORY", str(get_default_repository_path())))
+    storage_path = Path(
+        __import__("os").environ.get(
+            "SAP_FINANCE_REPOSITORY",
+            str(get_default_repository_path()),
+        )
+    )
     repository = LocalInvoiceRepository(storage_path)
     lifecycle = InvoiceLifecycleService()
 
@@ -82,7 +92,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "list":
             invoices = repository.list_all()
             for invoice in invoices:
-                print(f"{invoice.invoice_uuid} | {invoice.processing_status.value} | {invoice.vendor_id}")
+                print(
+                    f"{invoice.invoice_uuid} | "
+                    f"{invoice.processing_status.value} | "
+                    f"{invoice.vendor_id}"
+                )
             return 0
 
         if args.command == "show":
@@ -142,7 +156,13 @@ def main(argv: list[str] | None = None) -> int:
             summary = build_summary(repository.list_all())
             print(json.dumps(summary, indent=2))
             return 0
-    except (CLIError, InvoiceValidationError, InvalidStatusTransitionError, RepositoryError, ValueError) as exc:
+    except (
+        CLIError,
+        InvoiceValidationError,
+        InvalidStatusTransitionError,
+        RepositoryError,
+        ValueError,
+    ) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 

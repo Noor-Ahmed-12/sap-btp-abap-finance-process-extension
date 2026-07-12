@@ -97,7 +97,11 @@ class LocalInvoiceRepository:
             raise RepositoryError("Invoice not found.")
         self._save(updated)
 
-    def find_by_vendor_and_invoice_number(self, vendor_id: str, invoice_number: str) -> Invoice | None:
+    def find_by_vendor_and_invoice_number(
+        self,
+        vendor_id: str,
+        invoice_number: str,
+    ) -> Invoice | None:
         for record in self._load():
             if record["vendor_id"] == vendor_id and record["invoice_number"] == invoice_number:
                 return self._decode(record)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from datetime import date
 from typing import Iterable
 
 from .exceptions import InvoiceValidationError, ValidationError
@@ -25,7 +24,13 @@ def validate_required_fields(invoice: Invoice) -> list[ValidationError]:
                 ValidationError(field_name, "REQUIRED_FIELD", f"{field_name} is required.")
             )
     if not invoice.invoice_date:
-        errors.append(ValidationError("invoice_date", "REQUIRED_FIELD", "Invoice date is required."))
+        errors.append(
+            ValidationError(
+                "invoice_date",
+                "REQUIRED_FIELD",
+                "Invoice date is required.",
+            )
+        )
     if invoice.processing_status == InvoiceStatus.REJECTED and not invoice.rejection_reason:
         errors.append(
             ValidationError(
@@ -85,7 +90,10 @@ def validate_amount_reconciliation(invoice: Invoice) -> list[ValidationError]:
     return []
 
 
-def validate_duplicate_invoice(invoice: Invoice, existing_invoices: Iterable[Invoice]) -> list[ValidationError]:
+def validate_duplicate_invoice(
+    invoice: Invoice,
+    existing_invoices: Iterable[Invoice],
+) -> list[ValidationError]:
     """Ensure vendor and invoice number are unique."""
     for existing in existing_invoices:
         if (
@@ -103,7 +111,10 @@ def validate_duplicate_invoice(invoice: Invoice, existing_invoices: Iterable[Inv
     return []
 
 
-def validate_invoice(invoice: Invoice, existing_invoices: Iterable[Invoice]) -> list[ValidationError]:
+def validate_invoice(
+    invoice: Invoice,
+    existing_invoices: Iterable[Invoice],
+) -> list[ValidationError]:
     """Run all invoice validation rules."""
     errors = []
     errors.extend(validate_required_fields(invoice))

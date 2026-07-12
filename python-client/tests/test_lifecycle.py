@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 import pytest
-
 from sap_finance_extension.exceptions import InvalidStatusTransitionError
 from sap_finance_extension.lifecycle import InvoiceLifecycleService
 from sap_finance_extension.models import Invoice, InvoiceStatus

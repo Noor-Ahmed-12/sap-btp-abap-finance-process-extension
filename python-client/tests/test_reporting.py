@@ -4,7 +4,12 @@ from sap_finance_extension.models import Invoice, InvoiceStatus
 from sap_finance_extension.reporting import build_summary
 
 
-def make_invoice(invoice_uuid: str, status: InvoiceStatus, currency_code: str, gross_amount: Decimal) -> Invoice:
+def make_invoice(
+    invoice_uuid: str,
+    status: InvoiceStatus,
+    currency_code: str,
+    gross_amount: Decimal,
+) -> Invoice:
     return Invoice(
         invoice_uuid=invoice_uuid,
         company_code="1000",

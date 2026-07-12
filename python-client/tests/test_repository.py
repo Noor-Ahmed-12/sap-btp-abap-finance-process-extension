@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 import pytest
-
 from sap_finance_extension.exceptions import RepositoryError
 from sap_finance_extension.local_repository import LocalInvoiceRepository
 from sap_finance_extension.models import Invoice, InvoiceStatus

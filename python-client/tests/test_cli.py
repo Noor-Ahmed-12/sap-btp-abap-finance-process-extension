@@ -1,8 +1,6 @@
-import json
 from pathlib import Path
 
 import pytest
-
 from sap_finance_extension.cli import build_parser, main
 from sap_finance_extension.models import Invoice, InvoiceStatus
 
@@ -20,7 +18,7 @@ def test_build_parser_accepts_show_subcommand() -> None:
 
 
 def test_cli_init_creates_store(tmp_path: Path) -> None:
-    storage = tmp_path / "invoices.json"
+    _ = tmp_path / "invoices.json"
     exit_code = main(["init"])
     assert exit_code == 0
 

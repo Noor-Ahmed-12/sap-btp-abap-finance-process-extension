@@ -66,4 +66,9 @@ class Invoice:
 
     @staticmethod
     def _format_datetime(value: datetime) -> str:
-        return value.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        return (
+            value.astimezone(timezone.utc)
+            .replace(microsecond=0)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )

@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from sap_finance_extension.exceptions import InvoiceValidationError
 from sap_finance_extension.models import Invoice, InvoiceStatus
 from sap_finance_extension.validators import validate_invoice
 

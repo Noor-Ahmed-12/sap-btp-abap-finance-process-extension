@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from sap_finance_extension.csv_loader import CSVLoader
-from sap_finance_extension.models import InvoiceStatus
 
 
 def test_valid_file_imports() -> None:
@@ -47,15 +46,23 @@ def test_business_validation_is_applied_during_csv_import() -> None:
     loader = CSVLoader(Path("sample-data/invalid_invoices.csv"))
     result = loader.load()
     assert any("vendor_id" in item["error"].lower() for item in result.failed)
-    assert any("gross" in item["error"].lower() or "currency" in item["error"].lower() for item in result.failed)
+    assert any(
+        "gross" in item["error"].lower() or "currency" in item["error"].lower()
+        for item in result.failed
+    )
 
 
 def test_invalid_status_is_reported() -> None:
     bad_file = Path("python-client/tests/fixtures/bad_status.csv")
     bad_file.parent.mkdir(parents=True, exist_ok=True)
     bad_file.write_text(
-        "invoice_uuid,company_code,vendor_id,vendor_name,invoice_number,invoice_date,currency_code,gross_amount,tax_amount,net_amount,cost_center,description,processing_status,rejection_reason,error_message,created_by,created_at,last_changed_by,last_changed_at\n" +
-        "inv-1,1000,VEN-1,Example Vendor,INV-1,2026-07-01,EUR,100.00,10.00,90.00,CC-100,Description,INVALID,,,,system,2026-07-01T09:00:00Z,system,2026-07-01T09:00:00Z\n",
+        "invoice_uuid,company_code,vendor_id,vendor_name,invoice_number,"
+        "invoice_date,currency_code,gross_amount,tax_amount,net_amount,"
+        "cost_center,description,processing_status,rejection_reason,"
+        "error_message,created_by,created_at,last_changed_by,last_changed_at\n"
+        + "inv-1,1000,VEN-1,Example Vendor,INV-1,2026-07-01,EUR,100.00,"
+        "10.00,90.00,CC-100,Description,INVALID,,,,system,"
+        "2026-07-01T09:00:00Z,system,2026-07-01T09:00:00Z\n",
         encoding="utf-8",
     )
     try:
