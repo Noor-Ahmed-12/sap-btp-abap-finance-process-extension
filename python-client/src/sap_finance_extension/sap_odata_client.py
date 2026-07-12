@@ -64,13 +64,14 @@ class SAPODataClient:
             raise SAPClientError("SAP_ODATA_URL is not configured.")
         url = f"{self.base_url.rstrip('/')}/{path.lstrip('/')}"
         try:
+            auth = (self.username, self.password) if (self.username and self.password) else None
             response = requests.request(
                 method,
                 url,
                 json=payload,
                 timeout=10,
                 verify=self.verify_ssl,
-                auth=(self.username, self.password),
+                auth=auth,
             )
         except requests.RequestException as exc:
             raise SAPClientError(f"Request failed: {exc}") from exc

@@ -101,15 +101,13 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "show":
             invoice = repository.get(args.invoice_uuid)
-            if invoice is None:
-                raise CLIError("Invoice not found.")
+            assert invoice is not None, "Invoice not found."
             print(json.dumps(invoice.to_dict(), indent=2))
             return 0
 
         if args.command == "validate":
             invoice = repository.get(args.invoice_uuid)
-            if invoice is None:
-                raise CLIError("Invoice not found.")
+            assert invoice is not None, "Invoice not found."
             ensure_valid_invoice(invoice, repository.list_all())
             lifecycle.validate(invoice)
             repository.update(invoice)
@@ -118,8 +116,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "approve":
             invoice = repository.get(args.invoice_uuid)
-            if invoice is None:
-                raise CLIError("Invoice not found.")
+            assert invoice is not None, "Invoice not found."
             lifecycle.approve(invoice)
             repository.update(invoice)
             print(f"Approved invoice {invoice.invoice_uuid}")
@@ -127,8 +124,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "reject":
             invoice = repository.get(args.invoice_uuid)
-            if invoice is None:
-                raise CLIError("Invoice not found.")
+            assert invoice is not None, "Invoice not found."
             lifecycle.reject(invoice, args.reason)
             repository.update(invoice)
             print(f"Rejected invoice {invoice.invoice_uuid}")
@@ -136,8 +132,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "reopen":
             invoice = repository.get(args.invoice_uuid)
-            if invoice is None:
-                raise CLIError("Invoice not found.")
+            assert invoice is not None, "Invoice not found."
             lifecycle.reopen(invoice)
             repository.update(invoice)
             print(f"Reopened invoice {invoice.invoice_uuid}")
@@ -145,8 +140,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "post":
             invoice = repository.get(args.invoice_uuid)
-            if invoice is None:
-                raise CLIError("Invoice not found.")
+            assert invoice is not None, "Invoice not found."
             lifecycle.post(invoice)
             repository.update(invoice)
             print(f"Posted invoice {invoice.invoice_uuid}")
