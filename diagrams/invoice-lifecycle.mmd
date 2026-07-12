@@ -1,0 +1,9 @@
+stateDiagram-v2
+    [*] --> NEW
+    NEW --> VALIDATED
+    NEW --> REJECTED
+    VALIDATED --> APPROVED
+    VALIDATED --> REJECTED
+    REJECTED --> NEW
+    APPROVED --> POSTED
+    POSTED --> [*]

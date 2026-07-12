@@ -1,0 +1,18 @@
+-- This source must be imported, adjusted where required, compiled, and activated in an SAP BTP ABAP Environment before it can be described as working SAP code.
+managed implementation in class zbp_na_i_invoice unique;
+definition for behavior of ZNA_I_INVOICE alias Invoice
+persistent table zna_invoice
+lock master
+etag master LastChangedAt
+{
+  create;
+  update;
+  delete;
+
+  action approve result [1] $self;
+  action reject parameter zna_i_invoice_reject result [1] $self;
+  action mark_as_posted result [1] $self;
+
+  validation validate_fields on save { field company_code, vendor_id, vendor_name, invoice_number, invoice_date, currency_code, gross_amount, tax_amount, net_amount; }
+  determination set_metadata on modify { field company_code, vendor_id, vendor_name; }
+}

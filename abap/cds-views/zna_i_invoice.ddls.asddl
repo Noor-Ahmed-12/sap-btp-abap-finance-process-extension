@@ -1,0 +1,20 @@
+-- This source must be imported, adjusted where required, compiled, and activated in an SAP BTP ABAP Environment before it can be described as working SAP code.
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Draft interface view for invoices'
+define root view entity ZNA_I_INVOICE
+  as select from zna_invoice
+  {
+    key invoice_uuid as InvoiceUUID,
+        company_code as CompanyCode,
+        vendor_id as VendorID,
+        vendor_name as VendorName,
+        invoice_number as InvoiceNumber,
+        invoice_date as InvoiceDate,
+        currency_code as CurrencyCode,
+        gross_amount as GrossAmount,
+        tax_amount as TaxAmount,
+        net_amount as NetAmount,
+        processing_status as ProcessingStatus,
+        rejection_reason as RejectionReason,
+        error_message as ErrorMessage
+  }

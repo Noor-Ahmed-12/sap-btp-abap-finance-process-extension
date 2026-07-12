@@ -1,0 +1,27 @@
+-- This source must be imported, adjusted where required, compiled, and activated in an SAP BTP ABAP Environment before it can be described as working SAP code.
+@EndUserText.label: 'Draft consumption view for invoices'
+@ObjectModel.semanticKey: ['InvoiceUUID']
+@UI: {
+  headerInfo: {
+    typeName: 'Invoice',
+    typeNamePlural: 'Invoices',
+    title: { value: 'InvoiceUUID' }
+  }
+}
+define root view entity ZNA_C_INVOICE
+  as projection on ZNA_I_INVOICE
+  {
+    key InvoiceUUID,
+        CompanyCode,
+        VendorID,
+        VendorName,
+        InvoiceNumber,
+        InvoiceDate,
+        CurrencyCode,
+        GrossAmount,
+        TaxAmount,
+        NetAmount,
+        ProcessingStatus,
+        RejectionReason,
+        ErrorMessage
+  }

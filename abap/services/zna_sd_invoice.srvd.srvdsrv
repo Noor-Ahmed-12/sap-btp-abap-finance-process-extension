@@ -1,0 +1,4 @@
+@EndUserText.label: 'Draft service definition for invoices'
+define service ZNA_SD_INVOICE {
+  expose ZNA_C_INVOICE as Invoice;
+}

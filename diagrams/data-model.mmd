@@ -1,0 +1,22 @@
+classDiagram
+    class Invoice {
+        +string invoice_uuid
+        +string company_code
+        +string vendor_id
+        +string vendor_name
+        +string invoice_number
+        +date invoice_date
+        +string currency_code
+        +Decimal gross_amount
+        +Decimal tax_amount
+        +Decimal net_amount
+        +string cost_center
+        +string description
+        +InvoiceStatus processing_status
+        +string rejection_reason
+        +string error_message
+        +string created_by
+        +datetime created_at
+        +string last_changed_by
+        +datetime last_changed_at
+    }

@@ -1,0 +1,9 @@
+invoice_uuid,company_code,vendor_id,vendor_name,invoice_number,invoice_date,currency_code,gross_amount,tax_amount,net_amount,cost_center,description,processing_status,rejection_reason,error_message,created_by,created_at,last_changed_by,last_changed_at
+1b8db8da-8cef-436a-9fb2-8d87cb7f79fc,1000,,Example Vendor,INV-2001,2026-07-06,EUR,100.00,10.00,90.00,CC-100,Missing vendor id,NEW,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z
+5f0350d2-92f1-4ff7-8db2-3fa322cbf756,1000,VEN-2002,Example Vendor,,2026-07-06,EUR,100.00,10.00,90.00,CC-100,Missing invoice number,NEW,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z
+0a1d6be1-6f18-4c47-b93e-5f65753de080,1000,VEN-2003,Example Vendor,INV-2003,2026-07-06,EUR,0.00,10.00,90.00,CC-100,Zero gross,NEW,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z
+c7dd33aa-61bf-4f47-ae03-4a31c7dc1b77,1000,VEN-2004,Example Vendor,INV-2004,2026-07-06,EUR,100.00,-1.00,90.00,CC-100,Negative tax,NEW,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z
+f1256ac3-6873-4e89-892f-751c3831afaa,1000,VEN-2005,Example Vendor,INV-2005,2026-07-06,XYZ,100.00,10.00,90.00,CC-100,Unsupported currency,NEW,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z
+8d95f2b1-fa51-46d0-8550-7b82c4d17348,1000,VEN-2006,Example Vendor,INV-2006,2026-07-06,EUR,100.00,10.00,80.00,CC-100,Reconciliation failure,NEW,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z
+cdc3904f-71d5-49ce-83d0-b133b3d65f14,1000,VEN-2007,Example Vendor,INV-2007,2026-07-06,EUR,100.00,10.00,90.00,CC-100,Rejected without reason,REJECTED,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z
+7bf59bda-2b8d-4ed8-b31a-f3bd8a6bb425,1000,VEN-2008,Example Vendor,INV-2008,2026-07-06,EUR,100.00,10.00,90.00,CC-100,Invalid status,INVALID,,,,system,2026-07-06T09:00:00Z,system,2026-07-06T09:00:00Z

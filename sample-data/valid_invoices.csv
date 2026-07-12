@@ -1,0 +1,6 @@
+invoice_uuid,company_code,vendor_id,vendor_name,invoice_number,invoice_date,currency_code,gross_amount,tax_amount,net_amount,cost_center,description,processing_status,rejection_reason,error_message,created_by,created_at,last_changed_by,last_changed_at
+8f2f8b76-4f78-4e6f-90b2-2f1fa13a0038,1000,VEN-1001,Alpine Office Supplies GmbH,INV-1001,2026-07-01,EUR,1250.00,125.00,1125.00,CC-100,Office supplies,NEW,,,system,2026-07-01T09:00:00Z,system,2026-07-01T09:00:00Z
+3ec7142a-ec3d-4ea4-9b00-c4507f7d5d61,1000,VEN-1002,Northstar Cloud Services Ltd,INV-1002,2026-07-02,USD,5400.00,540.00,4860.00,CC-200,Cloud services,NEW,,,system,2026-07-02T09:00:00Z,system,2026-07-02T09:00:00Z
+5e0fa2e7-8f4d-4b8b-a459-5b21d5f49d70,1000,VEN-1003,Rhine Logistics GmbH,INV-1003,2026-07-03,GBP,820.00,82.00,738.00,CC-300,Logistics,NEW,,,system,2026-07-03T09:00:00Z,system,2026-07-03T09:00:00Z
+abf71c79-713c-493d-9b3e-bb5aa5c9b712,1000,VEN-1004,Baltic Software Consulting UG,INV-1004,2026-07-04,CHF,1500.00,150.00,1350.00,CC-400,Consulting,NEW,,,system,2026-07-04T09:00:00Z,system,2026-07-04T09:00:00Z
+f8f0fe67-b1a5-4842-b5dc-b72d9fc20a2d,1000,VEN-1005,Munich Mobility Parts GmbH,INV-1005,2026-07-05,EUR,2300.00,230.00,2070.00,CC-500,Parts,NEW,,,system,2026-07-05T09:00:00Z,system,2026-07-05T09:00:00Z

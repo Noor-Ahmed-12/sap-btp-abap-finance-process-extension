@@ -1,0 +1,23 @@
+-- This source must be imported, adjusted where required, compiled, and activated in an SAP BTP ABAP Environment before it can be described as working SAP code.
+@EndUserText.label: 'Draft invoice table'
+define table zna_invoice {
+  invoice_uuid : abap.char(36);
+  company_code : abap.char(4);
+  vendor_id : abap.char(20);
+  vendor_name : abap.char(80);
+  invoice_number : abap.char(30);
+  invoice_date : abap.dats;
+  currency_code : abap.char(3);
+  gross_amount : abap.dec(15,2);
+  tax_amount : abap.dec(15,2);
+  net_amount : abap.dec(15,2);
+  cost_center : abap.char(20);
+  description : abap.char(255);
+  processing_status : abap.char(20);
+  rejection_reason : abap.char(255);
+  error_message : abap.char(255);
+  created_by : abap.char(20);
+  created_at : abap.utclong;
+  last_changed_by : abap.char(20);
+  last_changed_at : abap.utclong;
+}

@@ -1,0 +1,3 @@
+invoice_uuid,company_code,vendor_id,vendor_name,invoice_number,invoice_date,currency_code,gross_amount,tax_amount,net_amount,cost_center,description,processing_status,rejection_reason,error_message,created_by,created_at,last_changed_by,last_changed_at
+b1a2f5f7-2df6-4f60-9c78-176c9a7ca1e4,1000,VEN-3001,Example Vendor,INV-3001,2026-07-07,EUR,300.00,30.00,270.00,CC-100,First duplicate,NEW,,,,system,2026-07-07T09:00:00Z,system,2026-07-07T09:00:00Z
+867d3fa0-9244-4628-84ec-670a9f1c6c05,1000,VEN-3001,Example Vendor,INV-3001,2026-07-07,EUR,320.00,32.00,288.00,CC-100,Second duplicate,NEW,,,,system,2026-07-07T09:00:00Z,system,2026-07-07T09:00:00Z
